@@ -103,13 +103,11 @@ pub struct RegionDesc {
 impl RegionDesc {
     /// Tests whether `self` contains `addr`.
     pub fn contains(&self, addr: usize) -> bool {
-        let next_addr = addr.wrapping_add(1);
-        if next_addr < addr {
-            return false;
-        };
-        let end = self.end_addr() as usize;
-
-        (self.base as usize) <= addr && next_addr <= end
+        /// using that old idiom from back days
+        /// I) addr < base: wraps to really huge vals
+        ///                 and therefore correctly gives false
+        /// II) base <= addr: is just readable correct
+        addr.wrapping_sub(self.base as usize) < (self.size as usize)
     }
 
     /// Compute the address one past the end of this region. Since we don't
